@@ -159,13 +159,25 @@
     </div>
 
     <div id="admin-editor-view" hidden>
-      <div class="admin-heading-row">
+      <div class="admin-topbar">
         <div>
           <span class="section-kicker">live editor</span>
-          <h2>notes</h2>
+          <h2>aryak's desk</h2>
         </div>
-        <button id="admin-add-note" class="btn btn-primary" type="button">+ note baru</button>
+        <div class="admin-tabs" role="tablist" aria-label="Editor">
+          <button id="admin-tab-notes" class="admin-tab active" type="button" role="tab">notes</button>
+          <button id="admin-tab-music" class="admin-tab" type="button" role="tab">music</button>
+        </div>
       </div>
+
+      <section id="admin-notes-pane" class="admin-pane active">
+        <div class="admin-heading-row">
+          <div>
+            <span class="section-kicker">little things</span>
+            <h3>notes</h3>
+          </div>
+          <button id="admin-add-note" class="btn btn-primary" type="button">+ note baru</button>
+        </div>
 
       <form id="admin-note-form" class="admin-note-form" hidden>
         <input id="admin-note-id" type="hidden">
@@ -197,6 +209,43 @@
         <button id="admin-refresh" class="mini-button" type="button">refresh ↻</button>
       </div>
       <div id="admin-note-list" class="admin-note-list"></div>
+      </section>
+
+      <section id="admin-music-pane" class="admin-pane" hidden>
+        <div class="admin-heading-row">
+          <div>
+            <span class="section-kicker">playlist corner</span>
+            <h3>music</h3>
+          </div>
+          <button id="admin-add-song" class="btn btn-primary" type="button">+ lagu baru</button>
+        </div>
+
+        <form id="admin-song-form" class="admin-note-form" hidden>
+          <input id="admin-song-id" type="hidden">
+          <label>Artist
+            <input id="admin-song-artist" type="text" maxlength="100" required placeholder="mis. Daniel Caesar">
+          </label>
+          <label>Judul lagu
+            <input id="admin-song-title" type="text" maxlength="120" required placeholder="judul lagunya">
+          </label>
+          <label>Vibe
+            <input id="admin-song-vibe" type="text" maxlength="100" placeholder="soft / late night">
+          </label>
+          <label>Link Spotify / YouTube
+            <input id="admin-song-url" type="url" maxlength="500" placeholder="https://...">
+          </label>
+          <div class="admin-form-actions">
+            <button class="btn btn-ghost" id="admin-cancel-song" type="button">batal</button>
+            <button class="btn btn-primary" type="submit">save lagu</button>
+          </div>
+        </form>
+
+        <div class="admin-status-row">
+          <span id="admin-music-status">online music</span>
+          <button id="admin-refresh-music" class="mini-button" type="button">refresh ↻</button>
+        </div>
+        <div id="admin-music-list" class="admin-note-list"></div>
+      </section>
     </div>
   </dialog>
 

@@ -13,7 +13,9 @@ const FAVORITES_KEY = "helenaDiaryFavoritesV1";
 const ADMIN_SESSION_KEY = "helenaAdminPasswordSessionV1";
 
 let remoteNotes = null;
+let remoteMusic = null;
 let apiAvailable = true;
+let musicApiAvailable = true;
 let activeFilter = "all";
 let searchTerm = "";
 let currentDialogNoteId = null;
@@ -71,12 +73,12 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("show"), 1900);
 }
 
-async function apiRequest(method = "GET", body = null, password = adminPassword) {
+async function apiRequest(method = "GET", body = null, password = adminPassword, endpoint = "/api/notes") {
   const headers = { "Accept": "application/json" };
   if (body !== null) headers["Content-Type"] = "application/json";
   if (password) headers["x-admin-password"] = password;
 
-  const response = await fetch("/api/notes", {
+  const response = await fetch(endpoint, {
     method,
     headers,
     body: body === null ? undefined : JSON.stringify(body),
@@ -105,6 +107,24 @@ async function loadRemoteNotes({ quiet = false } = {}) {
     if (!quiet) {
       console.warn("Live notes belum tersedia, pakai starter notes.", error);
     }
+    return false;
+  }
+}
+
+function allMusic() {
+  const source = Array.isArray(remoteMusic) ? remoteMusic : (Array.isArray(DATA.music) ? DATA.music : []);
+  return [...source].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+}
+
+async function loadRemoteMusic({ quiet = false } = {}) {
+  try {
+    const payload = await apiRequest("GET", null, adminPassword, "/api/music");
+    if (Array.isArray(payload.music)) remoteMusic = payload.music;
+    musicApiAvailable = true;
+    return true;
+  } catch (error) {
+    musicApiAvailable = false;
+    if (!quiet) console.warn("Live music belum tersedia, pakai starter music.", error);
     return false;
   }
 }
@@ -260,7 +280,7 @@ function renderLittleThings() {
 function renderMusic() {
   const grid = $("#music-grid");
   grid.innerHTML = "";
-  DATA.music.forEach(song => {
+  allMusic().forEach(song => {
     const card = document.createElement("article");
     card.className = "music-card reveal visible";
     card.innerHTML = `
@@ -492,6 +512,7 @@ function renderAdminList() {
 
 async function verifyAdminPassword(password) {
   await apiRequest("POST", { action: "verify" }, password);
+  await apiRequest("POST", { action: "verify" }, password, "/api/music");
   adminPassword = password;
   sessionStorage.setItem(ADMIN_SESSION_KEY, password);
 }
@@ -568,6 +589,203 @@ async function deleteAdminNote(note) {
   }
 }
 
+
+function switchAdminTab(tab) {
+  const music = tab === "music";
+  $("#admin-tab-notes").classList.toggle("active", !music);
+  $("#admin-tab-music").classList.toggle("active", music);
+  $("#admin-notes-pane").hidden = music;
+  $("#admin-music-pane").hidden = !music;
+  $("#admin-notes-pane").classList.toggle("active", !music);
+  $("#admin-music-pane").classList.toggle("active", music);
+}
+
+function musicStatus(text) {
+  $("#admin-music-status").textContent = text;
+}
+
+function clearSongForm() {
+  $("#admin-song-id").value = "";
+  $("#admin-song-artist").value = "";
+  $("#admin-song-title").value = "";
+  $("#admin-song-vibe").value = "";
+  $("#admin-song-url").value = "";
+}
+
+function openSongForm(song = null) {
+  $("#admin-song-form").hidden = false;
+  if (!song) {
+    clearSongForm();
+  } else {
+    $("#admin-song-id").value = song.id || "";
+    $("#admin-song-artist").value = song.artist || "";
+    $("#admin-song-title").value = song.title || "";
+    $("#admin-song-vibe").value = song.vibe || "";
+    $("#admin-song-url").value = song.url || "";
+  }
+  $("#admin-song-artist").focus();
+}
+
+function closeSongForm() {
+  $("#admin-song-form").hidden = true;
+  clearSongForm();
+}
+
+function renderAdminMusicList() {
+  const list = $("#admin-music-list");
+  list.innerHTML = "";
+  const songs = allMusic();
+
+  songs.forEach((song, index) => {
+    const item = document.createElement("div");
+    item.className = "admin-list-item";
+
+    const copy = document.createElement("div");
+    copy.className = "admin-list-copy";
+
+    const meta = document.createElement("div");
+    meta.className = "admin-list-meta";
+    meta.textContent = `🎧 ${song.vibe || "no vibe"}`;
+
+    const title = document.createElement("div");
+    title.className = "admin-list-title";
+    title.textContent = `${song.artist} — ${song.title}`;
+
+    copy.append(meta, title);
+
+    if (song.url) {
+      const link = document.createElement("a");
+      link.className = "admin-music-link";
+      link.href = song.url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = song.url;
+      copy.appendChild(link);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "admin-list-actions";
+
+    const order = document.createElement("div");
+    order.className = "admin-list-order";
+
+    const up = document.createElement("button");
+    up.type = "button";
+    up.className = "admin-order-btn";
+    up.textContent = "↑";
+    up.title = "Naikkan";
+    up.disabled = index === 0;
+    up.addEventListener("click", () => moveSong(index, -1));
+
+    const down = document.createElement("button");
+    down.type = "button";
+    down.className = "admin-order-btn";
+    down.textContent = "↓";
+    down.title = "Turunkan";
+    down.disabled = index === songs.length - 1;
+    down.addEventListener("click", () => moveSong(index, 1));
+
+    order.append(up, down);
+
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "admin-icon-btn";
+    edit.textContent = "edit";
+    edit.addEventListener("click", () => openSongForm(song));
+
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "admin-icon-btn danger";
+    del.textContent = "hapus";
+    del.addEventListener("click", () => deleteSong(song));
+
+    actions.append(order, edit, del);
+    item.append(copy, actions);
+    list.appendChild(item);
+  });
+}
+
+async function refreshMusic() {
+  musicStatus("syncing...");
+  const ok = await loadRemoteMusic({ quiet: true });
+  if (!ok) {
+    musicStatus("gagal sync");
+    showToast("ga bisa sync music");
+    return false;
+  }
+  renderMusic();
+  renderAdminMusicList();
+  musicStatus(`${allMusic().length} lagu · synced`);
+  return true;
+}
+
+async function submitSong(event) {
+  event.preventDefault();
+  const id = $("#admin-song-id").value.trim();
+  const song = {
+    ...(id ? { id } : {}),
+    artist: $("#admin-song-artist").value.trim(),
+    title: $("#admin-song-title").value.trim(),
+    vibe: $("#admin-song-vibe").value.trim(),
+    url: $("#admin-song-url").value.trim()
+  };
+
+  if (!song.artist || !song.title) {
+    showToast("artist sama judulnya belum lengkap");
+    return;
+  }
+
+  musicStatus("saving...");
+  try {
+    await apiRequest(id ? "PUT" : "POST", song, adminPassword, "/api/music");
+    closeSongForm();
+    await refreshMusic();
+    showToast(id ? "lagunya udah diedit ♡" : "lagu baru masuk ♡");
+  } catch (error) {
+    showToast(error.message || "gagal save lagu");
+    musicStatus("save gagal");
+  }
+}
+
+async function deleteSong(song) {
+  if (!confirm(`hapus "${song.artist} — ${song.title}"?`)) return;
+  musicStatus("deleting...");
+  try {
+    await apiRequest("DELETE", { id: song.id }, adminPassword, "/api/music");
+    closeSongForm();
+    await refreshMusic();
+    showToast("lagunya udah dihapus");
+  } catch (error) {
+    showToast(error.message || "gagal hapus lagu");
+    musicStatus("hapus gagal");
+  }
+}
+
+async function moveSong(index, delta) {
+  const songs = allMusic();
+  const target = index + delta;
+  if (target < 0 || target >= songs.length) return;
+
+  [songs[index], songs[target]] = [songs[target], songs[index]];
+  musicStatus("saving order...");
+
+  try {
+    const payload = await apiRequest(
+      "POST",
+      { action: "reorder", ids: songs.map(song => song.id) },
+      adminPassword,
+      "/api/music"
+    );
+    if (Array.isArray(payload.music)) remoteMusic = payload.music;
+    renderMusic();
+    renderAdminMusicList();
+    musicStatus(`${allMusic().length} lagu · synced`);
+  } catch (error) {
+    showToast("gagal ubah urutan");
+    await refreshMusic();
+  }
+}
+
 function setupAdmin() {
   if (!adminModeEnabled()) return;
 
@@ -575,6 +793,8 @@ function setupAdmin() {
   floating.hidden = false;
   fillAdminCategories();
   clearAdminForm();
+  clearSongForm();
+  switchAdminTab("notes");
 
   floating.addEventListener("click", async () => {
     $("#admin-dialog").showModal();
@@ -584,6 +804,7 @@ function setupAdmin() {
         await verifyAdminPassword(adminPassword);
         setAdminView(true);
         await refreshAdminAndPublic();
+        await refreshMusic();
       } catch {
         sessionStorage.removeItem(ADMIN_SESSION_KEY);
         adminPassword = "";
@@ -599,6 +820,12 @@ function setupAdmin() {
   $("#admin-cancel-edit").addEventListener("click", closeAdminForm);
   $("#admin-note-form").addEventListener("submit", submitAdminNote);
   $("#admin-refresh").addEventListener("click", refreshAdminAndPublic);
+  $("#admin-tab-notes").addEventListener("click", () => switchAdminTab("notes"));
+  $("#admin-tab-music").addEventListener("click", () => switchAdminTab("music"));
+  $("#admin-add-song").addEventListener("click", () => openSongForm());
+  $("#admin-cancel-song").addEventListener("click", closeSongForm);
+  $("#admin-song-form").addEventListener("submit", submitSong);
+  $("#admin-refresh-music").addEventListener("click", refreshMusic);
 
   $("#admin-login-form").addEventListener("submit", async event => {
     event.preventDefault();
@@ -611,6 +838,7 @@ function setupAdmin() {
       $("#admin-password").value = "";
       setAdminView(true);
       await refreshAdminAndPublic();
+      await refreshMusic();
     } catch (error) {
       errorEl.textContent =
         error.status === 401
@@ -623,13 +851,13 @@ function setupAdmin() {
 async function init() {
   setStaticCopy();
   renderLittleThings();
-  renderMusic();
   setupDialog();
   setupRandom();
   setupSearch();
   setupAdmin();
 
-  await loadRemoteNotes();
+  await Promise.all([loadRemoteNotes(), loadRemoteMusic()]);
+  renderMusic();
   renderFilters();
   renderNotes();
   updateStats();
@@ -642,8 +870,12 @@ async function init() {
 
   // Kalau Len buka cukup lama, notes otomatis refresh tanpa reload.
   setInterval(async () => {
-    const ok = await loadRemoteNotes({ quiet: true });
-    if (ok) refreshPublicUI();
+    const [notesOk, musicOk] = await Promise.all([
+      loadRemoteNotes({ quiet: true }),
+      loadRemoteMusic({ quiet: true })
+    ]);
+    if (notesOk) refreshPublicUI();
+    if (musicOk) renderMusic();
   }, 90000);
 }
 

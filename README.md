@@ -1,67 +1,55 @@
-# helena — Live Editor Edition
+# helena — Live Editor + Music Admin
 
-Versi ini bisa **tambah, edit, dan hapus note langsung dari website**.
+Sekarang admin `?admin=1` punya 2 tab:
 
-## Admin
+- **notes** — tambah/edit/hapus daily notes
+- **music** — tambah/edit/hapus lagu + ubah urutan
 
-Buka:
+## Password admin
 
-```text
-https://NAMASITE.netlify.app/?admin=1
-```
+Karena repo GitHub sebaiknya tidak menyimpan password mentah, set password di Netlify:
 
-Klik tombol `✎`.
-
-**Password default:**
-
-```text
-181107
-```
-
-Clue yang tampil di login:
-
-```text
-ultah
-```
-
-Password default diverifikasi di Netlify Function, bukan di JavaScript frontend.
-
-### Kalau nanti mau ganti password tanpa edit code
-
-Di Netlify tambahkan Environment Variable:
+1. Netlify → Project configuration
+2. Environment variables
+3. Tambah:
 
 ```text
 HELENA_ADMIN_PASSWORD
 ```
 
-Isi value dengan password baru lalu redeploy sekali.
+Value: isi password admin yang sudah kamu pilih langsung di Netlify UI. Jangan tulis nilainya di repo.
 
-Kalau variable itu ada, password Netlify akan menggantikan default `181107`.
+4. Save lalu lakukan 1 redeploy.
 
-## Cara pakai
+Clue login tetap: `ultah`.
 
-- `+ note baru` → tambah note
-- `edit` → ubah note
-- `hapus` → hapus note
-- save → langsung online untuk Len
-
-Data note tersimpan di Netlify Blobs.
-
-## URL biasa untuk Len
+## Admin URL
 
 ```text
-https://NAMASITE.netlify.app/
+https://NAMASITE.netlify.app/?admin=1
 ```
 
-Editor tidak tampil di URL biasa.
+Klik `✎`, login, lalu pilih tab **notes** atau **music**.
 
-## Deploy
+### Music editor
 
-Paling stabil: GitHub → Netlify continuous deployment.
+Bisa mengubah:
+- artist
+- judul lagu
+- vibe
+- link Spotify / YouTube
+- urutan card (↑ / ↓)
 
-Project sudah berisi:
-- Netlify Functions
-- Netlify Blobs dependency
-- noindex
-- robots.txt
-- security headers ringan
+Perubahan tersimpan di Netlify Blobs dan langsung tampil ke visitor tanpa edit `data.js`.
+
+## Penting saat update dari GitHub
+
+Upload/replace file project ini di **root repo**:
+- `index.html`
+- `app.js`
+- `styles.css`
+- `package.json`
+- `netlify.toml`
+- `netlify/functions/...`
+
+`@netlify/blobs` tetap dipin ke `10.7.9` agar build stabil.

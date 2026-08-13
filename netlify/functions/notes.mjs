@@ -24,7 +24,8 @@ function safeEqual(a, b) {
 }
 
 function authorized(req) {
-  const expected = process.env.HELENA_ADMIN_PASSWORD || "181107";
+  const expected = process.env.HELENA_ADMIN_PASSWORD;
+  if (!expected) return false;
   return safeEqual(req.headers.get("x-admin-password"), expected);
 }
 
