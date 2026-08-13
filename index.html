@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff8fb">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="description" content="helena — little things i notice about you">
+  <title>helena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-noise" aria-hidden="true"></div>
+  <div class="floaters" aria-hidden="true">
+    <span class="floater floater-a">🎀</span><span class="floater floater-b">♡</span><span class="floater floater-c">✦</span>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="#top">helena<span>.</span></a>
+    <nav class="nav-links">
+      <a href="#today">today</a><a href="#diary">diary</a><a href="#music">music</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <div class="eyebrow">a little place for len 🎀</div>
+        <h1>helena</h1>
+        <p class="hero-tagline">little things i notice about you</p>
+        <p class="hero-intro" id="hero-intro"></p>
+        <div class="hero-actions">
+          <a href="#today" class="btn btn-primary">open diary</a>
+          <button id="random-note-hero" class="btn btn-ghost" type="button">random little thing</button>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-pill"><strong id="note-count">0</strong><span>little notes</span></div>
+          <div class="stat-pill"><strong id="days-count">0</strong><span>days noticing</span></div>
+          <div class="stat-pill"><strong id="saved-count">0</strong><span>saved by len</span></div>
+        </div>
+      </div>
+
+      <div class="hero-diary reveal">
+        <div class="diary-book">
+          <div class="diary-tape"></div><span class="diary-bow">🎀</span>
+          <p class="diary-small">private notes</p><h2>for<br>helena</h2>
+          <div class="diary-cat">ฅ^•ﻌ•^ฅ</div><p class="diary-date" id="diary-cover-date"></p>
+        </div>
+        <span class="sticker sticker-1">soft things ♡</span><span class="sticker sticker-2">🐈</span>
+      </div>
+    </section>
+
+    <section id="today" class="section-shell section-block">
+      <div class="section-heading reveal">
+        <div><span class="section-kicker">today</span><h2>today's note</h2></div>
+        <button id="shuffle-today" class="mini-button" type="button">another one ↻</button>
+      </div>
+      <article id="today-card" class="today-card reveal">
+        <div class="today-topline">
+          <span id="today-icon" class="today-icon">🎀</span><span id="today-date"></span><span id="today-category" class="category-chip"></span>
+        </div>
+        <h3 id="today-title"></h3><p id="today-text"></p>
+        <button id="today-save" class="heart-save" type="button" aria-label="Simpan note">♡</button>
+      </article>
+    </section>
+
+    <section id="diary" class="section-shell section-block">
+      <div class="section-heading reveal">
+        <div><span class="section-kicker">archive</span><h2>little things</h2><p>pelan-pelan, satu note tiap hari.</p></div>
+      </div>
+      <div class="diary-toolbar reveal">
+        <div id="category-filters" class="filter-row"></div>
+        <label class="search-box"><span>⌕</span><input id="search-input" type="search" placeholder="cari note..." autocomplete="off"></label>
+      </div>
+      <div id="notes-grid" class="notes-grid"></div>
+      <p id="empty-state" class="empty-state" hidden>ga ketemu note yang itu 🥺</p>
+    </section>
+
+    <section class="section-shell section-block">
+      <div class="split-section">
+        <div class="little-wall reveal">
+          <span class="section-kicker">len coded</span><h2>little things</h2>
+          <p class="wall-subtitle">hal kecil yang somehow terasa len banget.</p>
+          <div id="little-things-wall" class="little-things-wall"></div>
+        </div>
+        <div class="random-card reveal">
+          <div class="random-bow">🎀</div><span class="section-kicker">random</span>
+          <h2>tell me something about len</h2><p id="random-fact">tekan tombolnyaa</p>
+          <button id="random-fact-button" class="btn btn-primary" type="button">one little thing</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="music" class="section-shell section-block">
+      <div class="section-heading reveal">
+        <div><span class="section-kicker">playlist corner</span><h2>songs that feel like you</h2><p>buat lagu-lagu yang somehow punya vibe len.</p></div>
+      </div>
+      <div id="music-grid" class="music-grid"></div>
+    </section>
+
+    <section class="section-shell ending-note reveal">
+      <span class="ending-cat">🐈</span><p id="footer-line"></p><small>still adding little things, one day at a time.</small>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>helena ♡</span><button id="writer-trigger" class="writer-trigger" type="button" hidden>✎ writer</button>
+  </footer>
+
+  <dialog id="note-dialog" class="note-dialog">
+    <button class="dialog-close" id="dialog-close" type="button">×</button>
+    <div id="dialog-icon" class="dialog-icon">🎀</div>
+    <div class="dialog-meta"><span id="dialog-date"></span><span id="dialog-category" class="category-chip"></span></div>
+    <h3 id="dialog-title"></h3><p id="dialog-text"></p>
+    <button id="dialog-save" class="btn btn-primary" type="button">♡ save this one</button>
+  </dialog>
+
+  <dialog id="writer-dialog" class="writer-dialog">
+    <button class="dialog-close" id="writer-close" type="button">×</button>
+    <div class="writer-heading">
+      <span>private helper</span><h2>writer mode ✎</h2>
+      <p>helper lokal. buat publish, paste snippet ke <code>data.js</code> lalu deploy lagi.</p>
+    </div>
+    <form id="writer-form">
+      <div class="form-row">
+        <label>Tanggal<input id="writer-date" type="date" required></label>
+        <label>Icon<input id="writer-icon" type="text" maxlength="4" value="🎀" required></label>
+      </div>
+      <label>Kategori<select id="writer-category"></select></label>
+      <label>Judul kecil<input id="writer-title" type="text" maxlength="60" placeholder="mis. pita rambut"></label>
+      <label>Isi note<textarea id="writer-text" rows="5" required placeholder="tulis kayak cara kau biasa ngomong..."></textarea></label>
+      <div class="writer-actions">
+        <button class="btn btn-ghost" id="preview-draft" type="button">preview lokal</button>
+        <button class="btn btn-primary" id="copy-snippet" type="button">copy snippet</button>
+      </div>
+      <pre id="snippet-preview" class="snippet-preview"></pre>
+    </form>
+  </dialog>
+
+
+  <dialog id="admin-dialog" class="admin-dialog">
+    <button class="dialog-close" id="admin-close" type="button" aria-label="Tutup">×</button>
+
+    <div id="admin-login-view">
+      <span class="section-kicker">private</span>
+      <h2>aryak's note desk ✎</h2>
+      <p class="admin-help">masukin password admin dulu.</p>
+      <div class="password-clue" aria-label="Clue password">clue: <strong>ultah</strong> 🎂</div>
+      <form id="admin-login-form" class="admin-form">
+        <label>Password
+          <input id="admin-password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="btn btn-primary" type="submit">masuk</button>
+      </form>
+      <p id="admin-login-error" class="admin-error" aria-live="polite"></p>
+    </div>
+
+    <div id="admin-editor-view" hidden>
+      <div class="admin-heading-row">
+        <div>
+          <span class="section-kicker">live editor</span>
+          <h2>notes</h2>
+        </div>
+        <button id="admin-add-note" class="btn btn-primary" type="button">+ note baru</button>
+      </div>
+
+      <form id="admin-note-form" class="admin-note-form" hidden>
+        <input id="admin-note-id" type="hidden">
+        <div class="admin-form-grid">
+          <label>Tanggal
+            <input id="admin-note-date" type="date" required>
+          </label>
+          <label>Icon
+            <input id="admin-note-icon" type="text" maxlength="4" value="🎀">
+          </label>
+        </div>
+        <label>Kategori
+          <select id="admin-note-category"></select>
+        </label>
+        <label>Judul kecil
+          <input id="admin-note-title" type="text" maxlength="80" required>
+        </label>
+        <label>Isi note
+          <textarea id="admin-note-text" rows="6" maxlength="1200" required></textarea>
+        </label>
+        <div class="admin-form-actions">
+          <button class="btn btn-ghost" id="admin-cancel-edit" type="button">batal</button>
+          <button class="btn btn-primary" type="submit">save note</button>
+        </div>
+      </form>
+
+      <div class="admin-status-row">
+        <span id="admin-sync-status">online notes</span>
+        <button id="admin-refresh" class="mini-button" type="button">refresh ↻</button>
+      </div>
+      <div id="admin-note-list" class="admin-note-list"></div>
+    </div>
+  </dialog>
+
+  <button id="admin-floating-button" class="admin-floating-button" type="button" hidden aria-label="Buka editor">✎</button>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="data.js"></script><script src="app.js"></script>
+</body>
+</html>
